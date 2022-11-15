@@ -4,8 +4,6 @@ import lodash from 'lodash';
 import { join } from 'path';
 import { TMP_DIR_PRODUCTION } from './constants';
 
-const builderConfig = require('./config/electron-builder.config');
-
 export const buildElectron = (customBuilderConfig?: Configuration) => {
   const PROJECT_DIR = join(process.cwd(), TMP_DIR_PRODUCTION);
   const DEFAULT_OUTPUT = 'dist';
@@ -23,8 +21,13 @@ export const buildElectron = (customBuilderConfig?: Configuration) => {
           artifactName: `\${productName}-setup-\${version}.\${ext}`,
         },
       },
-      builderConfig,
-      customBuilderConfig || {},
+      {
+        electronDownload: {
+          mirror: 'https://registry.npmmirror.com/-/binary/electron/',
+        },
+        files: ['./**'],
+      },
+      customBuilderConfig || {}
     ) as Configuration,
     projectDir: PROJECT_DIR,
   };
@@ -33,7 +36,7 @@ export const buildElectron = (customBuilderConfig?: Configuration) => {
     return lodash.get(
       builderConfigMerged,
       ['config', 'directories', 'output'],
-      DEFAULT_OUTPUT,
+      DEFAULT_OUTPUT
     );
   };
 
@@ -43,7 +46,7 @@ export const buildElectron = (customBuilderConfig?: Configuration) => {
     lodash.set(
       builderConfigMerged,
       ['config', 'directories', 'output'],
-      join('../', output),
+      join('../', output)
     );
   }
 
