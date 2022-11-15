@@ -9,22 +9,24 @@
     "dev": "father dev"
   },
   "files": [
-    "lib",
+    "dist",
     "src"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/umijs/plugins"
+    "url": "https://github.com/xiefengnian/umijs-electron-plugin.git"
   },
   "keywords": [
-    "umi"
+    "umi",
+    "electron",
+    "umi plugin"
   ],
   "authors": [
-    "xiefengnian <xiefengnian@126.com> (https://github.com/xiefengnian)"
+    "xiefengnian <xieniangao@126.com> (https://github.com/xiefengnian)"
   ],
   "license": "MIT",
-  "bugs": "http://github.com/umijs/plugins/issues",
-  "homepage": "https://github.com/umijs/plugins/tree/master/packages/plugin-dva#readme",
+  "bugs": "https://github.com/xiefengnian/issues",
+  "homepage": "https://github.com/xiefengnian/umijs-electron-plugin.git",
   "peerDependencies": {
     "electron": "*",
     "electron-builder": "*",
