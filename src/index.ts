@@ -1,4 +1,4 @@
-import { IApi } from 'umi';
+import type { IApi } from 'umi';
 import { join } from 'path';
 import { generateEnvJson, regeneratePackageJson } from './utils';
 import { buildElectron } from './buildElectron';
