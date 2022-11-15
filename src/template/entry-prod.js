@@ -19,4 +19,14 @@ app.on('ready', () => {
   bw.loadFile(path.join(__dirname, './renderer/index.html')).then(() => {
     require('./index.js');
   });
+
+  // ipc
+  try {
+    fs.readdirSync(path.join(__dirname, './ipc')).forEach((file) => {
+      const ipcFilepath = path.join(__dirname, './ipc', file);
+      require(ipcFilepath);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
