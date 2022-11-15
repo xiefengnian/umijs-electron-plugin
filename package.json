@@ -32,7 +32,8 @@
     "umi": ">=3"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "http://registry.npmjs.org"
   },
   "dependencies": {
     "@babel/core": "^7.20.2",
