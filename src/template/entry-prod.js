@@ -1,21 +1,22 @@
-const lodash = require('lodash');
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 app.on('ready', () => {
-  const bw = new BrowserWindow(
-    lodash.merge(
-      {
-        ...require('./config.js'),
-      },
-      {
-        webPreferences: {
-          preload: join(__dirname, './dist/preload.js'),
-        },
-      }
-    )
-  );
-  bw.loadFile(path.join(__dirname, './renderer.html')).then(() => {
-    require('index.js');
+  let userConfig = {};
+
+  if (fs.existsSync(path.join(__dirname, './config.js'))) {
+    userConfig = require('./config');
+  }
+
+  const bw = new BrowserWindow({
+    ...userConfig.browserWindow,
+    webPreferences: {
+      ...(userConfig.browserWindow?.webPreferences || {}),
+      preload: path.join(__dirname, './preload.js'),
+    },
+  });
+  bw.loadFile(path.join(__dirname, './renderer/index.html')).then(() => {
+    require('./index.js');
   });
 });

@@ -8,12 +8,16 @@ const chokidar = require('chokidar');
 
 const mPath = path.join(__dirname, './dist/index.js');
 
-const config = require('./dist/config');
-
 const main = async () => {
   const context = { browserWindow: null, electron: electron };
 
-  const _config = _.merge(config.browserWindow || {}, {
+  let userConfig = {};
+
+  if (fs.existsSync(join(process.cwd(), './dist/config.js'))) {
+    userConfig = require('./dist/config');
+  }
+
+  const _config = _.merge(userConfig.browserWindow || {}, {
     webPreferences: {
       preload: join(__dirname, './dist/preload.js'),
     },
@@ -69,18 +73,23 @@ const main = async () => {
 
   context.browserWindow = new electron.BrowserWindow(_config);
 
-  await context.browserWindow.loadFile('./index.html');
+  await context.browserWindow.loadURL('http://localhost:8000');
 
   // init require modules start
   require(mPath).call(this, hackContext(context));
 
-  fs.readdirSync(join(__dirname, './dist/ipc')).forEach((file) => {
-    const ipcFilepath = join(__dirname, './dist/ipc', file);
+  try {
+    fs.readdirSync(join(__dirname, './dist/ipc')).forEach((file) => {
+      const ipcFilepath = join(__dirname, './dist/ipc', file);
 
-    let ipc = require(ipcFilepath);
+      let ipc = require(ipcFilepath);
 
-    ipc.call(this, hackContext(context));
-  });
+      ipc.call(this, hackContext(context));
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
   // init require modules end
 
   const clearEvents = (filepath) => {

@@ -4,22 +4,6 @@ import { spawnSync } from 'child_process';
 import { DependenciesJson } from '../types';
 import { getTmpDir, Mode } from '..';
 
-export const createVersionFile = (): {
-  filename: string;
-  fileContent: string;
-} => {
-  const commit = spawnSync('git', ['rev-parse', 'HEAD'], {
-    encoding: 'utf-8',
-  }).stdout.replace('\n', '');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { version } = require(path.resolve(process.cwd(), 'package.json'));
-  const date = new Date().toUTCString();
-  return {
-    filename: 'version.json',
-    fileContent: JSON.stringify({ commit, version, date }),
-  };
-};
-
 export const generateEnvJson = (mode: Mode) => {
   const outputPath = join(process.cwd(), getTmpDir(mode));
   if (!existsSync(outputPath)) {
@@ -60,5 +44,30 @@ export const regeneratePackageJson = (mode: Mode) => {
     join(process.cwd(), `${getTmpDir(mode)}/package.json`),
     JSON.stringify(originPkgJson, undefined, 2),
     'utf-8'
+  );
+};
+
+export const generateDeps = (toGenerateDeps, depsOfFile, filesOfDep) => {
+  writeFileSync(
+    path.resolve(process.cwd(), `${getTmpDir('production')}/dependencies.json`),
+    JSON.stringify(
+      {
+        all: Array.from(toGenerateDeps),
+        files: Object.keys(depsOfFile).reduce((memo, current) => {
+          return {
+            ...memo,
+            [current]: Array.from(depsOfFile[current]),
+          };
+        }, {}),
+        deps: Object.keys(filesOfDep).reduce((memo, current) => {
+          return {
+            ...memo,
+            [current]: Array.from(filesOfDep[current]),
+          };
+        }, {}),
+      },
+      null,
+      2
+    )
   );
 };

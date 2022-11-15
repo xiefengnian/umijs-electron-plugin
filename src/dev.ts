@@ -39,10 +39,13 @@ export const dev = (
   beforeStartApp: () => Promise<void>
 ) => {
   const tmpDir = outputDir;
+
   outputDir = join(tmpDir, 'dist');
 
+  console.log(`[dev] src: ${srcDir}, output: ${outputDir}`);
+
   const initAllFile = new Set();
-  glob.sync(srcDir).forEach((filepath) => {
+  glob.sync(`${srcDir}/**/*`).forEach((filepath) => {
     if (fs.statSync(filepath).isFile()) {
       initAllFile.add(filepath);
     }
@@ -85,7 +88,7 @@ export const dev = (
   };
 
   const startApp = () => {
-    const electronProcess = proc.spawn(electron, [process.cwd()], {
+    const electronProcess = proc.spawn(electron, [tmpDir], {
       stdio: 'pipe',
       env: {
         ...process.env,
@@ -99,7 +102,9 @@ export const dev = (
   };
 
   chokidar
-    .watch(join(join(__dirname, './src')))
+    .watch(srcDir, {
+      usePolling: true,
+    })
     .on('add', (path) => {
       if (initAllFile.has(path)) {
         console.log(`[init] ${path}`);

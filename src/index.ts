@@ -6,6 +6,8 @@ import { copyFileSync, writeFileSync } from 'fs';
 import * as _ from 'lodash';
 import { TMP_DIR_PRODUCTION, TMP_DIR } from './constants';
 import { dev } from './dev';
+import { PathUtil } from './utils/path';
+import { build } from './build';
 
 export type Mode = 'development' | 'production';
 
@@ -41,12 +43,14 @@ export default (api: IApi) => {
 
     const { src = 'src/main', extraDevFiles = {} } = api.config.electron;
 
+    const pathUtil = new PathUtil(src, getTmpDir(currentMode));
+
     generateEnvJson(currentMode);
 
-    dev(src, join(process.cwd(), getTmpDir(currentMode)), async () => {
+    dev(pathUtil.getSrcDir(), pathUtil.getOutputDir(), async () => {
       copyFileSync(
         join(__dirname, './template/entry-dev.js'),
-        join(process.cwd(), getTmpDir(currentMode), 'entry.js')
+        join(pathUtil.getOutputDir(), 'entry.js')
       );
       regeneratePackageJson(currentMode);
     });
@@ -81,6 +85,8 @@ export default (api: IApi) => {
       );
       console.log();
     }, 5 * 60 * 1000);
+
+    build(src, getTmpDir(currentMode));
 
     generateEnvJson(currentMode);
 
