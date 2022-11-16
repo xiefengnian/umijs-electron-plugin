@@ -6,7 +6,7 @@ app.on('ready', () => {
   let userConfig = {};
 
   if (fs.existsSync(path.join(__dirname, './config.js'))) {
-    userConfig = require('./config');
+    userConfig = require('./config').default;
   }
 
   const bw = new BrowserWindow({

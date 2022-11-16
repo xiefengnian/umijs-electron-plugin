@@ -14,8 +14,9 @@ const main = async () => {
   let userConfig = {};
 
   if (fs.existsSync(join(__dirname, './dist/config.js'))) {
-    userConfig = require('./dist/config');
-    console.log(`[dev] userConfig found`);
+    userConfig = require('./dist/config').default;
+  } else {
+    console.log(`[config] user config not found`);
   }
 
   const _config = _.merge(userConfig.browserWindow || {}, {

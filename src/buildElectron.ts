@@ -1,4 +1,3 @@
-import { rimraf } from '@umijs/utils';
 import { build, Configuration } from 'electron-builder';
 import lodash from 'lodash';
 import { join } from 'path';
@@ -49,7 +48,5 @@ export const buildElectron = (customBuilderConfig?: Configuration) => {
       join('../', output)
     );
   }
-
-  rimraf.sync(join(PROJECT_DIR, getOutput()));
   return build(builderConfigMerged);
 };

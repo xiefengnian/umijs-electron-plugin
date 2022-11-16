@@ -45,6 +45,7 @@
     "clear-module": "^4.1.2",
     "electron": "^21.2.3",
     "electron-builder": "^23.6.0",
+    "glob": "^8.0.3",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2"
   },
