@@ -75,7 +75,12 @@ export const build = (srcDir: string, toDir: string) => {
       } else {
         if (/tsconfig\.json$/.test(base) || /\.d\.ts$/.test(base)) {
         } else {
-          fs.copyFileSync(filepath, join(toDir, basePath, base));
+          const copyToDir = join(toDir, basePath);
+          const copyToPath = join(copyToDir, base);
+          if (!fs.existsSync(copyToDir)) {
+            fs.mkdirSync(copyToDir, { recursive: true });
+          }
+          fs.copyFileSync(filepath, copyToPath);
         }
       }
     }

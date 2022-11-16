@@ -142,6 +142,7 @@ const main = async () => {
       ) {
         hotReplaceModule(filepath);
       } else {
+        // todo: 重载所有 ipc
         hotReplaceModule(mPath);
       }
     });
