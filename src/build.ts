@@ -73,7 +73,10 @@ export const build = (srcDir: string, toDir: string) => {
           needProvider ? createBrowserWindowProvider(code) : code
         );
       } else {
-        fs.copyFileSync(filepath, join(toDir, basePath, base));
+        if (/tsconfig\.json$/.test(base)) {
+        } else {
+          fs.copyFileSync(filepath, join(toDir, basePath, base));
+        }
       }
     }
   });
