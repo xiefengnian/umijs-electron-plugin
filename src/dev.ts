@@ -83,7 +83,7 @@ export const dev = (
         needProvider ? createContextProvider(code, outputFilename) : code
       );
     } else {
-      if (/tsconfig\.json$/.test(base)) {
+      if (/tsconfig\.json$/.test(base) || /\.d\.ts$/.test(base)) {
         console.log(`[ignore] ${filepath}`);
       } else {
         fs.copyFileSync(filepath, join(toDir, basePath, base));
