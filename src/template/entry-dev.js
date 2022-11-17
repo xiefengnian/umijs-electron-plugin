@@ -80,17 +80,10 @@ const main = async () => {
   // init require modules start
   require(mPath).call(this, hackContext(context));
 
-  try {
-    fs.readdirSync(join(__dirname, './dist/ipc')).forEach((file) => {
-      const ipcFilepath = join(__dirname, './dist/ipc', file);
-
-      let ipc = require(ipcFilepath);
-
-      ipc.call(this, hackContext(context));
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  let ipcFiles = [];
+  const unmountAllIpc = () => {
+    ipcFiles.forEach((ipcPath) => hotReplaceModule(ipcPath));
+  };
 
   // init require modules end
 
@@ -111,11 +104,19 @@ const main = async () => {
     }
   };
 
-  const hotReplaceModule = (filepath) => {
+  const unmountModule = (filepath) => {
     clearEvents(filepath);
     decache(filepath);
+  };
+  const mountMoudle = (filepath) => {
     const _module = require(filepath);
     _module.call(this, hackContext(context));
+  };
+
+  const hotReplaceModule = (filepath) => {
+    console.log('[hrm] ', filepath);
+    unmountModule(filepath);
+    mountMoudle(filepath);
   };
 
   const hotReplacePreload = () => {
@@ -123,6 +124,10 @@ const main = async () => {
   };
 
   const src = path.join(__dirname, './dist');
+
+  const isIpcFile = (filepath) => {
+    return parse(filepath).dir === join(src, 'ipc') && /\.js$/.test(filepath);
+  };
 
   chokidar
     .watch(src, {
@@ -136,14 +141,25 @@ const main = async () => {
         console.log(
           '[info] config changed, restart application to take effect.'
         );
-      } else if (
-        parse(filepath).dir === join(src, 'ipc') &&
-        /\.js$/.test(filepath)
-      ) {
+      } else if (isIpcFile(filepath)) {
         hotReplaceModule(filepath);
-      } else {
-        // todo: 重载所有 ipc
+      } else if (filepath === mPath) {
         hotReplaceModule(mPath);
+      } else {
+        hotReplaceModule(mPath);
+        unmountAllIpc();
+      }
+    })
+    .on('unlink', (filepath) => {
+      if (isIpcFile(filepath)) {
+        ipcFiles = ipcFiles.filter((ipcPath) => ipcPath !== filepath);
+        unmountModule(filepath);
+      }
+    })
+    .on('add', (filepath) => {
+      if (isIpcFile(filepath)) {
+        ipcFiles.push(filepath);
+        mountMoudle(filepath);
       }
     });
 };

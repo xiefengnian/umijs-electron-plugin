@@ -1,3 +1,4 @@
+const rimraf = require('rimraf');
 const proc = require('child_process');
 const electron = require('electron');
 const fs = require('fs');
@@ -44,6 +45,10 @@ export const dev = (
 
   console.log(`[dev] src: ${srcDir}, output: ${outputDir}`);
 
+  // 每次启动的时候应该清空输出目录
+
+  rimraf.sync(outputDir);
+
   const initAllFile = new Set();
   glob.sync(`${srcDir}/**/*`).forEach((filepath) => {
     if (fs.statSync(filepath).isFile()) {
@@ -51,10 +56,36 @@ export const dev = (
     }
   });
 
-  const transformFile = (filepath, srcDir, toDir) => {
-    const { base, ext, dir, name } = parse(filepath);
+  const isTransformFile = (ext, base?) => {
+    if (/\.d\.ts$/.test(base)) {
+      return false;
+    }
+    if (/\.(js|ts|mjs)$/.test(ext)) {
+      return true;
+    }
+    return false;
+  };
 
+  const getFileOutputInfo = (filepath, srcDir, toDir) => {
+    const { base, ext, dir, name } = parse(filepath);
     const basePath = dir.replace(srcDir, '');
+    const outputDir = join(toDir, basePath);
+    if (isTransformFile(ext)) {
+      return {
+        dir: outputDir,
+        filepath: join(outputDir, `${name}.js`),
+      };
+    }
+    const copyToDir = join(toDir, basePath);
+    const copyToPath = join(copyToDir, base);
+    return {
+      dir: copyToDir,
+      filepath: copyToPath,
+    };
+  };
+
+  const transformFile = (filepath, srcDir, toDir) => {
+    const { base, ext, name } = parse(filepath);
 
     let needProvider = false;
 
@@ -64,34 +95,40 @@ export const dev = (
       }
     }
 
-    if (/\.(js|ts|mjs)$/.test(ext)) {
+    if (isTransformFile(ext, base)) {
       const { code } = babel.transformFileSync(filepath, {
         presets: ['@babel/preset-env', '@babel/preset-typescript'],
         plugins: [],
       });
 
-      const outputDir = join(toDir, basePath);
+      const { dir, filepath: finalFilePath } = getFileOutputInfo(
+        filepath,
+        srcDir,
+        toDir
+      );
 
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
       }
 
-      const outputFilename = join(outputDir, `${name}.js`);
-
       fs.writeFileSync(
-        outputFilename,
-        needProvider ? createContextProvider(code, outputFilename) : code
+        finalFilePath,
+        needProvider ? createContextProvider(code, finalFilePath) : code
       );
     } else {
       if (/tsconfig\.json$/.test(base) || /\.d\.ts$/.test(base)) {
         console.log(`[ignore] ${filepath}`);
       } else {
-        const copyToDir = join(toDir, basePath);
-        const copyToPath = join(copyToDir, base);
-        if (!fs.existsSync(copyToDir)) {
-          fs.mkdirSync(copyToDir, { recursive: true });
+        const { dir, filepath: finalFilePath } = getFileOutputInfo(
+          filepath,
+          srcDir,
+          toDir
+        );
+
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
         }
-        fs.copyFileSync(filepath, copyToPath);
+        fs.copyFileSync(filepath, finalFilePath);
       }
     }
   };
@@ -128,6 +165,13 @@ export const dev = (
       }
 
       transformFile(path, srcDir, outputDir);
+    })
+    .on('unlink', (path) => {
+      console.log(`[unlink] ${path}`);
+      const { filepath } = getFileOutputInfo(path, srcDir, outputDir);
+      try {
+        fs.unlinkSync(filepath);
+      } catch (error) {}
     })
     .on('change', (path) => {
       console.log(`[change] ${path}`);
