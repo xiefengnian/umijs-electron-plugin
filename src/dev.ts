@@ -7,12 +7,18 @@ const babel = require('@babel/core');
 const { join, parse } = require('path');
 const glob = require('glob');
 
-const createContextProvider = (content, filepath) => `
+const isWindows = process.platform === 'win32';
+
+const createContextProvider = (content: string, filepath: string) => `
 "use strict";
 module.exports = (context) => {
   if(context.electron.ipcMain.on._hof) {
-    context.electron.ipcMain.on = context.electron.ipcMain.on("${filepath}");
-    context.electron.ipcMain.handle = context.electron.ipcMain.handle("${filepath}");
+    context.electron.ipcMain.on = context.electron.ipcMain.on("${
+      isWindows ? filepath.replace(/\\/g, '\\\\') : filepath
+    }");
+    context.electron.ipcMain.handle = context.electron.ipcMain.handle("${
+      isWindows ? filepath.replace(/\\/g, '\\\\') : filepath
+    }");
   }
 
   return ((require, getBrowserWindowRuntime) => {
@@ -50,11 +56,16 @@ export const dev = (
   rimraf.sync(outputDir);
 
   const initAllFile = new Set();
-  glob.sync(`${srcDir}/**/*`).forEach((filepath) => {
-    if (fs.statSync(filepath).isFile()) {
-      initAllFile.add(filepath);
-    }
-  });
+
+  const globPath = `${srcDir}/**/*`;
+
+  glob
+    .sync(isWindows ? globPath.replace(/\\/g, '/') : globPath)
+    .forEach((filepath: string) => {
+      if (fs.statSync(filepath).isFile()) {
+        initAllFile.add(isWindows ? filepath.replace(/\//g, '\\') : filepath);
+      }
+    });
 
   const isTransformFile = (ext, base?) => {
     if (/\.d\.ts$/.test(base)) {
