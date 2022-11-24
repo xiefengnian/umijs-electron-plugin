@@ -23,7 +23,10 @@ export default (api: IApi) => {
       schema(joi) {
         return joi.object({
           src: joi.string(),
-          builder: joi.object(),
+          builder: joi.object({
+            targets: joi.array(),
+            config: joi.object(),
+          }),
           extraDevFiles: joi.object(),
         });
       },
