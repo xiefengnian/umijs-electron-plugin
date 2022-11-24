@@ -24,7 +24,7 @@ export default (api: IApi) => {
         return joi.object({
           src: joi.string(),
           builder: joi.object({
-            targets: joi.object(),
+            targets: joi.array(),
             config: joi.object(),
           }),
           extraDevFiles: joi.object(),
