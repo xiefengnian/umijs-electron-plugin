@@ -96,12 +96,17 @@ export const dev = (
   };
 
   const transformFile = (filepath, srcDir, toDir) => {
-    const { base, ext, name } = parse(filepath);
+    const { base, ext, name, dir } = parse(filepath);
+
+    const subDir = dir.replace(srcDir, '');
 
     let needProvider = false;
 
     if (['.js', '.ts'].includes(ext)) {
-      if (!['preload', 'config'].includes(name)) {
+      // 预定 forks 作为子进程文件目录，不增加 provider
+      if (subDir === '/forks') {
+        needProvider = false;
+      } else if (!['preload', 'config'].includes(name)) {
         needProvider = true;
       }
     }
