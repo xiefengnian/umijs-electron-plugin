@@ -104,7 +104,7 @@ export const dev = (
 
     if (['.js', '.ts'].includes(ext)) {
       // 预定 forks 作为子进程文件目录，不增加 provider
-      if (subDir === '/forks') {
+      if (subDir === '/forks' || subDir === '\\forks' /** windows */) {
         needProvider = false;
       } else if (!['preload', 'config'].includes(name)) {
         needProvider = true;
