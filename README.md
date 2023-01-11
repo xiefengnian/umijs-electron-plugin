@@ -41,6 +41,8 @@ $ yarn add @umijs/plugin-electron --dev
 
 应用产物将会出现在 ~/dist 目录下。
 
+> 可以参照 example 目录开始
+
 ## 文档说明
 
 ### 1. 约定式目录
