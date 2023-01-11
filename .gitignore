@@ -3,3 +3,7 @@ node_modules
 dist
 
 lib
+
+.electron
+
+.electron-production

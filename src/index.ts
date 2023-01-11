@@ -42,6 +42,8 @@ export default (api: IApi) => {
       return;
     }
 
+    console.log('port', api.appData.port);
+
     const currentMode: Mode = 'development';
 
     const { src = 'src/main', extraDevFiles = {} } = api.config.electron;
@@ -50,13 +52,18 @@ export default (api: IApi) => {
 
     generateEnvJson(currentMode);
 
-    dev(pathUtil.getSrcDir(), pathUtil.getOutputDir(), async () => {
-      copyFileSync(
-        join(__dirname, './template/entry-dev.js'),
-        join(pathUtil.getOutputDir(), 'entry.js')
-      );
-      regeneratePackageJson(currentMode);
-    });
+    dev(
+      pathUtil.getSrcDir(),
+      pathUtil.getOutputDir(),
+      api.appData.port,
+      async () => {
+        copyFileSync(
+          join(__dirname, './template/entry-dev.js'),
+          join(pathUtil.getOutputDir(), 'entry.js')
+        );
+        regeneratePackageJson(currentMode);
+      }
+    );
 
     const tmpDir = getTmpDir(currentMode);
     Object.keys(extraDevFiles).forEach((filename) => {

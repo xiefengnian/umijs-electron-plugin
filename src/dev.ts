@@ -43,6 +43,7 @@ module.exports = (context) => {
 export const dev = (
   srcDir: string,
   outputDir: string,
+  port: number,
   beforeStartApp: () => Promise<void>
 ) => {
   const tmpDir = outputDir;
@@ -155,6 +156,7 @@ export const dev = (
       env: {
         ...process.env,
         FORCE_COLOR: '1',
+        UMI_APP_PORT: port,
       },
       cwd: process.cwd(),
     });

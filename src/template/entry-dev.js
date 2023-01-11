@@ -8,6 +8,8 @@ const chokidar = require('chokidar');
 
 const mPath = path.join(__dirname, './dist/index.js');
 
+const { UMI_APP_PORT = '8000' } = process.env;
+
 const main = async () => {
   const context = { browserWindow: null, electron: electron };
 
@@ -75,7 +77,7 @@ const main = async () => {
 
   context.browserWindow = new electron.BrowserWindow(_config);
 
-  await context.browserWindow.loadURL('http://localhost:8000');
+  await context.browserWindow.loadURL(`http://localhost:${UMI_APP_PORT}`);
 
   // init require modules start
   require(mPath).call(this, hackContext(context));
