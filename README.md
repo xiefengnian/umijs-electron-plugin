@@ -18,6 +18,17 @@ $ yarn add @umijs/plugin-electron --dev
 
 基于 umi4 项目开始，请使用 `npm create umi` 初始化项目。
 
+### 0. 添加 npm 镜像地址
+
+受国内特殊网络环境影响，需要添加 npm 镜像。
+
+```
+# .npmrc
+registry=https://registry.npmmirror.com
+electron-mirror=https://registry.npmmirror.com/-/binary/electron/
+electron-builder-binaries-mirror=https://registry.npmmirror.com/-/binary/electron-builder-binaries/
+```
+
 ### 1. 配置 config.ts
 
 ```ts
