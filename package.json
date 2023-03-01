@@ -1,16 +1,17 @@
 {
   "name": "@umijs/plugin-electron",
-  "version": "0.2.0-3",
+  "version": "0.2.2",
   "description": "@umijs/plugin-electron",
   "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "types": "./typing.d.ts",
   "scripts": {
     "build": "father build",
     "dev": "father dev"
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "typing.d.ts"
   ],
   "repository": {
     "type": "git",
@@ -45,6 +46,7 @@
     "clear-module": "^4.1.2",
     "electron": "^21.2.3",
     "electron-builder": "^23.6.0",
+    "glob": "^8.0.3",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2"
   },

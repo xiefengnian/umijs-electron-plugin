@@ -23,7 +23,10 @@ export default (api: IApi) => {
       schema(joi) {
         return joi.object({
           src: joi.string(),
-          builder: joi.object(),
+          builder: joi.object({
+            targets: joi.any(),
+            config: joi.object(),
+          }),
           extraDevFiles: joi.object(),
         });
       },
@@ -41,19 +44,27 @@ export default (api: IApi) => {
 
     const currentMode: Mode = 'development';
 
-    const { src = 'src/main', extraDevFiles = {} } = api.config.electron;
+    const {
+      src = process.platform === 'win32' ? 'src\\main' : 'src/main',
+      extraDevFiles = {},
+    } = api.config.electron;
 
     const pathUtil = new PathUtil(src, getTmpDir(currentMode));
 
     generateEnvJson(currentMode);
 
-    dev(pathUtil.getSrcDir(), pathUtil.getOutputDir(), async () => {
-      copyFileSync(
-        join(__dirname, './template/entry-dev.js'),
-        join(pathUtil.getOutputDir(), 'entry.js')
-      );
-      regeneratePackageJson(currentMode);
-    });
+    dev(
+      pathUtil.getSrcDir(),
+      pathUtil.getOutputDir(),
+      api.appData.port,
+      async () => {
+        copyFileSync(
+          join(__dirname, './template/entry-dev.js'),
+          join(pathUtil.getOutputDir(), 'entry.js')
+        );
+        regeneratePackageJson(currentMode);
+      }
+    );
 
     const tmpDir = getTmpDir(currentMode);
     Object.keys(extraDevFiles).forEach((filename) => {
@@ -73,7 +84,8 @@ export default (api: IApi) => {
 
     const currentMode: Mode = 'production';
 
-    const { src = 'src/main' } = api.config.electron;
+    const { src = process.platform === 'win32' ? 'src\\main' : 'src/main' } =
+      api.config.electron;
 
     // 打包超过五分钟则提示
     const timer = setTimeout(() => {
@@ -114,3 +126,5 @@ export default (api: IApi) => {
     stage: Infinity,
   });
 };
+
+export * from 'electron-builder';

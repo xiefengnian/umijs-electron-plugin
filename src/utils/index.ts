@@ -1,6 +1,5 @@
 import fs, { existsSync, mkdirSync, writeFileSync } from 'fs';
 import path, { join } from 'path';
-import { spawnSync } from 'child_process';
 import { DependenciesJson } from '../types';
 import { getTmpDir, Mode } from '..';
 

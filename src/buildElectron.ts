@@ -1,21 +1,27 @@
-import { rimraf } from '@umijs/utils';
-import { build, Configuration } from 'electron-builder';
+import { build, CliOptions, Configuration } from 'electron-builder';
 import lodash from 'lodash';
 import { join } from 'path';
 import { TMP_DIR_PRODUCTION } from './constants';
 
-export const buildElectron = (customBuilderConfig?: Configuration) => {
+type UserConfig = {
+  targets: CliOptions['targets'];
+  config: Configuration;
+};
+
+export const buildElectron = (userConfig?: UserConfig) => {
+  const { targets, config = {} } = userConfig || {};
+
   const PROJECT_DIR = join(process.cwd(), TMP_DIR_PRODUCTION);
   const DEFAULT_OUTPUT = 'dist';
   const DEFAULT_RELATIVE_OUTPUT = join('../', DEFAULT_OUTPUT);
 
-  const builderConfigMerged = {
+  const builderConfigMerged: CliOptions = {
     config: lodash.merge(
       {
         directories: { output: DEFAULT_RELATIVE_OUTPUT },
         dmg: {
           title: `\${productName}-\${version}`,
-          artifactName: `\${productName}-\${version}.\${ext}`,
+          artifactName: `\${productName}-\${version}-\${arch}.\${ext}`,
         },
         nsis: {
           artifactName: `\${productName}-setup-\${version}.\${ext}`,
@@ -27,9 +33,10 @@ export const buildElectron = (customBuilderConfig?: Configuration) => {
         },
         files: ['./**'],
       },
-      customBuilderConfig || {}
+      config || {}
     ) as Configuration,
     projectDir: PROJECT_DIR,
+    targets,
   };
 
   const getOutput = () => {
@@ -42,14 +49,12 @@ export const buildElectron = (customBuilderConfig?: Configuration) => {
 
   const output = getOutput();
 
-  if (!output.startsWith('../')) {
+  if (!output.startsWith('..')) {
     lodash.set(
       builderConfigMerged,
       ['config', 'directories', 'output'],
       join('../', output)
     );
   }
-
-  rimraf.sync(join(PROJECT_DIR, getOutput()));
   return build(builderConfigMerged);
 };
