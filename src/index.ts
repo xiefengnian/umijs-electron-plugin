@@ -24,7 +24,7 @@ export default (api: IApi) => {
         return joi.object({
           src: joi.string(),
           builder: joi.object({
-            targets: joi.array(),
+            targets: joi.any(),
             config: joi.object(),
           }),
           extraDevFiles: joi.object(),
@@ -126,3 +126,5 @@ export default (api: IApi) => {
     stage: Infinity,
   });
 };
+
+export * from 'electron-builder';

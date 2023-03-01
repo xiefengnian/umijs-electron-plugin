@@ -145,8 +145,8 @@ export default {
 
 type ElectronConfig = {
   builder: {
-    targets: ('linux' | 'win' | 'mac')[];
-    config: Object;
+    targets: Map<Platform | Map<Arch | Array<String>>>; // https://www.electron.build/api/electron-builder
+    config: Configuration; // https://www.electron.build/configuration/configuration
   };
   src: string;
   extraDevFiles: Record<string, string>;
@@ -157,9 +157,28 @@ type ElectronConfig = {
 
 构建配置。
 
-`builder.config`: plugin-electron 基于 electron-builder 进行开发，因此可以直接查看 electron-builder 的文档说明。
+targets 和 config 详见 electron-builder 的文档。
 
-`builder.targets`: 产物平台，支持 linux，win，mac。
+example:
+
+```ts
+// .umirc
+import { Platform, Arch } from '@umijs/plugin-electron'; // plugin 中转导出了 electron-builder 的 Programming Api，引入不同的 builder 会导致构建错误
+
+// example: mac & windows
+const targets = createTargets([Platform.MAC, Platform.WINDOWS]);
+
+// example: mac m1
+const targets = Platform.MAC.createTarget(['dmg'], Arch.arm64);
+
+export default {
+  electron: {
+    builder: {
+      targets: targets,
+    },
+  },
+};
+```
 
 2. src
 

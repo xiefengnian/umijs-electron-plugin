@@ -1,9 +1,9 @@
 {
   "name": "@umijs/plugin-electron",
-  "version": "0.2.0-18",
+  "version": "0.2.1",
   "description": "@umijs/plugin-electron",
   "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "types": "./typing.d.ts",
   "scripts": {
     "build": "father build",
     "dev": "father dev"

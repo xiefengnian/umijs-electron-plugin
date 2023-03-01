@@ -1,40 +1,15 @@
-import {
-  build,
-  CliOptions,
-  Configuration,
-  createTargets,
-  Platform,
-} from 'electron-builder';
+import { build, CliOptions, Configuration } from 'electron-builder';
 import lodash from 'lodash';
 import { join } from 'path';
 import { TMP_DIR_PRODUCTION } from './constants';
 
-type Platforms = 'win' | 'mac' | 'linux';
-
 type UserConfig = {
-  targets: Platforms[];
+  targets: CliOptions['targets'];
   config: Configuration;
 };
 
 export const buildElectron = (userConfig?: UserConfig) => {
   const { targets, config = {} } = userConfig || {};
-
-  const builderTargets =
-    (targets
-      ?.map((target) => {
-        switch (target) {
-          case 'linux':
-            return Platform.LINUX;
-          case 'win':
-            return Platform.WINDOWS;
-          case 'mac':
-            return Platform.MAC;
-          default:
-            console.log('[builder targets] unknown target: ', target);
-            return null;
-        }
-      })
-      .filter(Boolean) as Platform[]) || [];
 
   const PROJECT_DIR = join(process.cwd(), TMP_DIR_PRODUCTION);
   const DEFAULT_OUTPUT = 'dist';
@@ -46,7 +21,7 @@ export const buildElectron = (userConfig?: UserConfig) => {
         directories: { output: DEFAULT_RELATIVE_OUTPUT },
         dmg: {
           title: `\${productName}-\${version}`,
-          artifactName: `\${productName}-\${version}.\${ext}`,
+          artifactName: `\${productName}-\${version}-\${arch}.\${ext}`,
         },
         nsis: {
           artifactName: `\${productName}-setup-\${version}.\${ext}`,
@@ -61,7 +36,7 @@ export const buildElectron = (userConfig?: UserConfig) => {
       config || {}
     ) as Configuration,
     projectDir: PROJECT_DIR,
-    targets: createTargets(builderTargets),
+    targets,
   };
 
   const getOutput = () => {

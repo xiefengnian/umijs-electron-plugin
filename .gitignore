@@ -7,3 +7,6 @@ lib
 .electron
 
 .electron-production
+
+
+example/yarn.lock
