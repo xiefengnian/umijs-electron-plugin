@@ -74,7 +74,7 @@ export const buildElectron = (userConfig?: UserConfig) => {
 
   const output = getOutput();
 
-  if (!output.startsWith('../')) {
+  if (!output.startsWith('..')) {
     lodash.set(
       builderConfigMerged,
       ['config', 'directories', 'output'],
