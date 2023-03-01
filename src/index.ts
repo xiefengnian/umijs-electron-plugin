@@ -42,11 +42,12 @@ export default (api: IApi) => {
       return;
     }
 
-    console.log('port', api.appData.port);
-
     const currentMode: Mode = 'development';
 
-    const { src = 'src/main', extraDevFiles = {} } = api.config.electron;
+    const {
+      src = process.platform === 'win32' ? 'src\\main' : 'src/main',
+      extraDevFiles = {},
+    } = api.config.electron;
 
     const pathUtil = new PathUtil(src, getTmpDir(currentMode));
 
@@ -83,7 +84,8 @@ export default (api: IApi) => {
 
     const currentMode: Mode = 'production';
 
-    const { src = 'src/main' } = api.config.electron;
+    const { src = process.platform === 'win32' ? 'src\\main' : 'src/main' } =
+      api.config.electron;
 
     // 打包超过五分钟则提示
     const timer = setTimeout(() => {
