@@ -3,6 +3,8 @@ name: Public Npm
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   publish:
