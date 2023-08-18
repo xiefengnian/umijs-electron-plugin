@@ -38,7 +38,10 @@ const main = async () => {
    * }
    */
   const _ipcMainOnMap = {};
-  const _ipcHandleMap = {};
+  const _ipcOnceMap = {};
+  let _ipcHandleChannels = [];
+
+  const _appUsingEvents = [];
 
   const hackContext = (_context) => {
     const _on = (filepath) => (channel, listener) => {
@@ -52,6 +55,31 @@ const main = async () => {
       _ipcMainOnMap[filepath].listeners.push(listener);
       _ipcMain.on(channel, listener);
     };
+
+    const _once = (filepath) => (channel, listener) => {
+      if (!_ipcOnceMap[filepath]) {
+        _ipcOnceMap[filepath] = {
+          channels: [],
+          listeners: [],
+        };
+      }
+      _ipcOnceMap[filepath].channels.push(channel);
+      _ipcOnceMap[filepath].listeners.push(listener);
+      _ipcMain.once(channel, listener);
+    };
+
+    const _handle = (channel, listener) => {
+      const handleResult = _ipcMain.handle(channel, listener);
+      _ipcHandleChannels.push(channel);
+      return handleResult;
+    };
+
+    const _handleOnce = (channel, listener) => {
+      const handleResult = _ipcMain.handleOnce(channel, listener);
+      _ipcHandleChannels.push(channel);
+      return handleResult;
+    };
+
     _on._hof = true;
 
     _context.electron = {
@@ -59,19 +87,22 @@ const main = async () => {
       ipcMain: {
         ..._ipcMain,
         on: _on,
-        handle: (filepath) => (channel, listener) => {
-          if (!_ipcHandleMap[filepath]) {
-            _ipcHandleMap[filepath] = {
-              channels: [],
-              listeners: [],
-            };
+        once: _once,
+        handle: _handle,
+        handleOnce: _handleOnce,
+      },
+      app: {
+        ...electron.app,
+        on: (event, listener) => {
+          if (_appUsingEvents.includes(event)) {
+            return;
           }
-          _ipcHandleMap[filepath].channels.push(channel);
-          _ipcHandleMap[filepath].listeners.push(listener);
-          return _ipcMain.handle(channel, listener);
+          _appUsingEvents.push(event);
+          electron.app.on(event, listener);
         },
       },
     };
+
     return _context;
   };
 
@@ -90,6 +121,7 @@ const main = async () => {
   // init require modules end
 
   const clearEvents = (filepath) => {
+    // clear on
     if (_ipcMainOnMap[filepath]) {
       const { channels, listeners } = _ipcMainOnMap[filepath];
       channels.forEach((channel, index) => {
@@ -97,20 +129,28 @@ const main = async () => {
       });
       _ipcMainOnMap[filepath] = undefined;
     }
-    if (_ipcHandleMap[filepath]) {
-      const { channels, listeners } = _ipcHandleMap[filepath];
+
+    // clear once
+    if (_ipcOnceMap[filepath]) {
+      const { channels, listeners } = _ipcOnceMap[filepath];
       channels.forEach((channel, index) => {
-        _ipcMain.removeHandler(channel, listeners[index]);
+        _ipcMain.removeListener(channel, listeners[index]);
       });
-      _ipcHandleMap[filepath] = undefined;
+      _ipcOnceMap[filepath] = undefined;
     }
+
+    // clear handle
+    _ipcHandleChannels.forEach((channel) => {
+      _ipcMain.removeHandler(channel);
+    });
+    _ipcHandleChannels = [];
   };
 
   const unmountModule = (filepath) => {
     clearEvents(filepath);
     decache(filepath);
   };
-  const mountMoudle = (filepath) => {
+  const mountModule = (filepath) => {
     const _module = require(filepath);
     _module.call(this, hackContext(context));
   };
@@ -118,7 +158,7 @@ const main = async () => {
   const hotReplaceModule = (filepath) => {
     console.log('[hrm] ', filepath);
     unmountModule(filepath);
-    mountMoudle(filepath);
+    mountModule(filepath);
   };
 
   const hotReplacePreload = () => {
@@ -161,7 +201,7 @@ const main = async () => {
     .on('add', (filepath) => {
       if (isIpcFile(filepath)) {
         ipcFiles.push(filepath);
-        mountMoudle(filepath);
+        mountModule(filepath);
       }
     });
 };

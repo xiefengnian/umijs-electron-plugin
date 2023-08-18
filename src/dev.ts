@@ -16,7 +16,7 @@ module.exports = (context) => {
     context.electron.ipcMain.on = context.electron.ipcMain.on("${
       isWindows ? filepath.replace(/\\/g, '\\\\') : filepath
     }");
-    context.electron.ipcMain.handle = context.electron.ipcMain.handle("${
+    context.electron.ipcMain.once = context.electron.ipcMain.once("${
       isWindows ? filepath.replace(/\\/g, '\\\\') : filepath
     }");
   }
