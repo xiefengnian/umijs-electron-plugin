@@ -1,11 +1,7 @@
 import { app } from 'electron';
 
-// getBrowserWindowRuntime().webContents.openDevTools();
+getBrowserWindowRuntime().webContents.openDevTools();
 
-app.on('browser-window-focus', (e) => {
-  e.preventDefault();
-
-  console.log('bwf1');
+app.on('browser-window-focus', () => {
+  console.log('browser-window-focus');
 });
-
-console.log(require.resolve);
