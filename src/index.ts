@@ -104,13 +104,12 @@ export default (api: IApi) => {
 
     regeneratePackageJson(currentMode);
 
-
     clearTimeout(timer);
   });
 
   api.onBuildHtmlComplete(async () => {
     await buildElectron(api.config.electron.builder || {});
-  })
+  });
 
   api.modifyConfig({
     fn: (initialValue) => {

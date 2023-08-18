@@ -54,6 +54,13 @@ electron-builder-binaries-mirror=https://registry.npmmirror.com/-/binary/electro
 
 > 可以参照 example 目录开始
 
+## 差距说明
+
+为了实现热更新能力，部分和原生开发的差距需要注意：
+
+1. require.resolve 不可用（因为 require 是伪造的）
+2. app.on(event,listener) 监听 app 事件时，只有第一个 event 会被注册
+
 ## 文档说明
 
 ### 1. 约定式目录
