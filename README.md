@@ -1,5 +1,8 @@
 # @umijs/plugin-electron
 
+🔧 一个基于 umijs 插件体系与前端结合的、用于开发轻量桌面应用的的、简单快速的 electron 开发框架。
+
+
 ## 安装 Install
 
 Using npm:
@@ -200,3 +203,7 @@ extraDevFiles: {
   'xxxx.js' : fs.readFileSync('xxxx.js','utf-8'),
 }
 ```
+
+## ISSUE
+
+问题请在 issue 中反馈。
