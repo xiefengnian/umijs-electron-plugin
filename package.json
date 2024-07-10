@@ -1,6 +1,6 @@
 {
   "name": "@umijs/plugin-electron",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "@umijs/plugin-electron",
   "main": "dist/cjs/index.js",
   "types": "./typing.d.ts",

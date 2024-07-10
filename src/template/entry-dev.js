@@ -82,26 +82,30 @@ const main = async () => {
 
     _on._hof = true;
 
-    _context.electron = {
-      ...electron,
-      ipcMain: {
-        ..._ipcMain,
-        on: _on,
-        once: _once,
-        handle: _handle,
-        handleOnce: _handleOnce,
-      },
-      app: {
-        ...electron.app,
-        on: (event, listener) => {
-          if (_appUsingEvents.includes(event)) {
-            return;
-          }
-          _appUsingEvents.push(event);
-          electron.app.on(event, listener);
+    _context.electron = Object.assign(
+      {
+        ipcMain: {
+          ..._ipcMain,
+          on: _on,
+          once: _once,
+          handle: _handle,
+          handleOnce: _handleOnce,
         },
+        app: Object.assign(
+          {
+            on: (event, listener) => {
+              if (_appUsingEvents.includes(event)) {
+                return;
+              }
+              _appUsingEvents.push(event);
+              electron.app.on(event, listener);
+            },
+          },
+          electron.app
+        ),
       },
-    };
+      electron
+    );
 
     return _context;
   };
